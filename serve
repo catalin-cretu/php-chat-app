@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+php bin/composer install
+php -S localhost:8008 -t src/
