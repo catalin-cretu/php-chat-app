@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
 
+serverPid=
+
+function startBackgroundServer() {
+    php -S localhost:8008 -t src/ &
+    serverPid=$!
+    echo "Started built-in web server with pid [${serverPid}]"
+
+    sleep 2
+}
+
+function stopBackgroundServer() {
+    echo "Stop built-in web server with pid [${serverPid}]"
+    kill -9 ${serverPid}
+}
+
 php bin/composer install
+
+startBackgroundServer
+
 php bin/composer run-script test
+
+stopBackgroundServer
