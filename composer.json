@@ -6,9 +6,13 @@
   "scripts": {
     "test": [
       "phpunit --bootstrap vendor/autoload.php --testdox tests"
+    ],
+    "functional-test": [
+      "phpunit --bootstrap vendor/autoload.php --testdox tests/ApiFT.php"
     ]
   },
   "require": {
+    "ext-dom": "*",
     "ext-json": "*"
   },
   "require-dev": {
@@ -16,8 +20,15 @@
     "guzzlehttp/guzzle": "6.3.3"
   },
   "autoload": {
-    "classmap": [
-      "src/"
-    ]
+    "psr-4": {
+      "ChatApp\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ChatApp\\": [
+        "tests/"
+      ]
+    }
   }
 }

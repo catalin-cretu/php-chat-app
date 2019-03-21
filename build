@@ -16,9 +16,8 @@ function stopBackgroundServer() {
 }
 
 php bin/composer install
-
-startBackgroundServer
-
 php bin/composer run-script test
 
+startBackgroundServer
+php bin/composer run-script functional-test
 stopBackgroundServer

@@ -3,7 +3,7 @@
 use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
 
-class ApiTest extends TestCase
+class ApiFT extends TestCase
 {
     private const ROOT_URL = 'http://localhost:8008/api.php';
 
@@ -16,16 +16,16 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function request_UnknownResource_ReturnsNotFound(): void
+    public function request_UnknownResource_ReturnsNotFoundStatus(): void
     {
         $this->expectException(ClientException::class);
-        $this->getExpectedExceptionMessage('404 Not Found');
+        $this->expectExceptionMessage('404 Not Found');
 
         self::$client->get('http://localhost:8008/notfound');
     }
 
     /** @test */
-    public function request_UnknownApiPath_ReturnsNotFound(): void
+    public function request_UnknownApiPath_ReturnsNotFoundStatus(): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('404 Not Found');
@@ -34,7 +34,7 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function request_UnmappedOperation_ReturnsNotAllowed(): void
+    public function request_UnmappedOperation_ReturnsNotAllowedStatus(): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('405 Method Not Allowed');
@@ -43,15 +43,18 @@ class ApiTest extends TestCase
     }
 
     /** @test */
-    public function getUserMessages_ForUserId_ReturnsMessages(): void
+    public function getUserMessages_ForUserId_ReturnsOkStatus(): void
     {
         $response = self::$client->get(self::ROOT_URL . '/users/321/messages');
 
         $this->assertEquals(200, $response->getStatusCode());
+    }
 
-        $messages = json_decode($response->getBody()->getContents());
-        $this->assertCount(3, $messages);
+    /** @test */
+    public function getUserMessages_ForUserId_ReturnsJson(): void
+    {
+        $response = self::$client->get(self::ROOT_URL . '/users/300/messages');
 
-        $this->assertNotNull($messages[0]->id);
+        $this->assertContains('application/json; charset=UTF-8', $response->getHeader('Content-Type'));
     }
 }
