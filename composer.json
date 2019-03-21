@@ -13,7 +13,9 @@
   },
   "require": {
     "ext-dom": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-sqlite3": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "8.0.5",

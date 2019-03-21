@@ -19,12 +19,12 @@ class Message
     /** @var string */
     private $message;
 
-    public function __construct(int $id, DateTime $timestamp, string $message, int $userId)
+    public function __construct(int $userId, DateTime $timestamp, string $message, ?int $id = null)
     {
-        $this->id = $id;
+        $this->userId = $userId;
         $this->timestamp = $timestamp;
         $this->message = $message;
-        $this->userId = $userId;
+        $this->id = $id;
     }
 
     /**

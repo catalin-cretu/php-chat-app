@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../Common/WebApi/ErrorsResponse.php';
 class MessagesResponse extends ErrorsResponse
 {
     /** @var MessageView[] */
-    public $messageViews;
+    public $messages;
 
     /**
      * @param MessageView[] $messageViews
@@ -18,7 +18,7 @@ class MessagesResponse extends ErrorsResponse
      */
     public function __construct(array $messageViews = [], array $errors = [])
     {
-        $this->messageViews = $messageViews;
+        $this->messages = $messageViews;
         $this->errors = $errors;
     }
 }

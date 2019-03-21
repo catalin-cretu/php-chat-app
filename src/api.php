@@ -6,10 +6,13 @@ require_once 'Message/Repo/MessageRepository.php';
 require_once 'Message/Repo/Sqlite/SqliteMessageRepository.php';
 require_once 'User/Api/UserService.php';
 require_once 'User/WebApi/UserController.php';
+require_once 'Common/Config.php';
 
+use ChatApp\Common\Config;
 use ChatApp\Message\Repo\Sqlite\SqliteMessageRepository;
 use ChatApp\User\Api\UserService;
 use ChatApp\User\WebApi\UserController;
+use PDO;
 
 
 $resourcePath = $_SERVER['PATH_INFO'];
@@ -50,5 +53,14 @@ function handleUserMessagesRequest(string $requestMethod, int $userId): void
 
 function newUserController(): UserController
 {
-    return new UserController(new UserService(new SqliteMessageRepository()));
+    $messageRepository = new SqliteMessageRepository(Config::SQLITE_PATH);
+    initializeDatabase($messageRepository->getPdo());
+
+    return new UserController(new UserService($messageRepository));
+}
+
+function initializeDatabase(PDO $pdo)
+{
+    $initScript = file_get_contents(Config::INIT_SCRIPT_PATH);
+    $pdo->exec($initScript);
 }

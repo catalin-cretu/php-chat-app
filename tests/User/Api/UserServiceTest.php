@@ -17,7 +17,7 @@ class UserServiceTest extends TestCase
     public function findMessages_ExistingUserId_ReturnsMessages(): void
     {
         $userService = Fixtures::newUserService([
-            new Message(232, new DateTime('2000-02-03'), 'Bye Bob', 2233),
+            new Message(2233, new DateTime('2000-02-03'), 'Bye Bob', 232),
             new Message(0, new DateTime(), '', 0)
         ]);
 
@@ -28,14 +28,14 @@ class UserServiceTest extends TestCase
         $this->assertCount(2, $messages);
 
         $this->assertEquals(
-            new Message(232, new DateTime('2000-02-03'), 'Bye Bob', 2233),
+            new Message(2233, new DateTime('2000-02-03'), 'Bye Bob', 232),
             $messages[0]);
     }
 
     /** @test
      * @throws Exception
      */
-    public function findMessages_MissingUserId_ReturnsErrors(): void
+    public function findMessages_UserIdNotFound_ReturnsErrors(): void
     {
         $userService = Fixtures::newUserService([]);
 

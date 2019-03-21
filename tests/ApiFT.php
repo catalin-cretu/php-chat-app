@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use ChatApp\Common\Config;
+use ChatApp\DB;
 use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
 
@@ -10,9 +12,13 @@ class ApiFT extends TestCase
     /** @var GuzzleHttp\Client */
     private static $client;
 
+    /** @var PDO */
+    private static $pdo;
+
     public static function setUpBeforeClass(): void
     {
         self::$client = new GuzzleHttp\Client();
+        self::$pdo = new PDO('sqlite:' . Config::SQLITE_PATH);
     }
 
     /** @test */
@@ -45,7 +51,8 @@ class ApiFT extends TestCase
     /** @test */
     public function getUserMessages_ForUserId_ReturnsOkStatus(): void
     {
-        $response = self::$client->get(self::ROOT_URL . '/users/321/messages');
+        $userId = DB::insertNewUser(self::$pdo);
+        $response = self::$client->get(self::ROOT_URL . "/users/$userId/messages");
 
         $this->assertEquals(200, $response->getStatusCode());
     }
@@ -53,8 +60,16 @@ class ApiFT extends TestCase
     /** @test */
     public function getUserMessages_ForUserId_ReturnsJson(): void
     {
-        $response = self::$client->get(self::ROOT_URL . '/users/300/messages');
+        $userId = DB::insertNewUser(self::$pdo);
+        DB::insertMessage(self::$pdo, $userId, '2018-12-12T00:00:00.000+00:00', 'Happy Old Year!');
+
+        $response = self::$client->get(self::ROOT_URL . "/users/$userId/messages");
 
         $this->assertContains('application/json; charset=UTF-8', $response->getHeader('Content-Type'));
+        $responseJson = $response->getBody()->getContents();
+
+        $this->assertJson($responseJson);
+        $this->assertStringContainsString('"Happy Old Year!"', $responseJson);
+        $this->assertStringContainsString('"2018-12-12T00:00:00+00:00"', $responseJson);
     }
 }
