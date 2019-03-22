@@ -3,7 +3,7 @@ Super simple chat app, written in PHP.
 
 ## Tools
 - PHP 7+
-    - sqlite3 ext
+- composer
 
 ## Scripts
 - `build`
@@ -11,10 +11,10 @@ Super simple chat app, written in PHP.
     - run tests
 - `serve`
     - install dependencies
-    - starts dev server
+    - starts built-in web server
 
 ## Features 
-- data should be stored in a SQLite DB
+- data can be stored in a SQLite DB
 - clients and server can communicate over HTTP in JSON format
 - a user can send a message to another user
 - a user can see messages from another user

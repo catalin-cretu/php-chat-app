@@ -5,10 +5,12 @@ namespace ChatApp\User\WebApi;
 
 use ChatApp\Common\Api\Result;
 use ChatApp\Message\Api\Message;
+use ChatApp\User\Api\User;
 use ChatApp\User\Api\UserService;
 use DateTime;
 
 require_once 'MessagesResponse.php';
+require_once 'UsersResponse.php';
 
 class UserController
 {
@@ -21,20 +23,44 @@ class UserController
     }
 
     /**
+     * @return UsersResponse
+     */
+    public function getAllUsers(): UsersResponse
+    {
+        $usersResult = $this->userService->findAllUsers();
+
+        return self::toUsersResponse($usersResult);
+    }
+
+    private static function toUsersResponse(Result $usersResult): UsersResponse
+    {
+        if ($usersResult->hasErrors()) {
+            return new UsersResponse([], $usersResult->getErrors());
+        }
+        $userViews = array_map(
+            function (User $user) {
+                return new UserView($user->getId());
+            },
+            $usersResult->get());
+
+        return new UsersResponse($userViews);
+    }
+
+    /**
      * @param int $userId
      * @return MessagesResponse
      */
     public function getMessages(int $userId): MessagesResponse
     {
-        $messages = $this->userService->findMessages($userId);
+        $messagesResult = $this->userService->findMessages($userId);
 
-        return self::toMessageResponse($messages);
+        return self::toMessagesResponse($messagesResult);
     }
 
-    private static function toMessageResponse(Result $result): MessagesResponse
+    private static function toMessagesResponse(Result $messagesResult): MessagesResponse
     {
-        if ($result->hasErrors()) {
-            return new MessagesResponse([], $result->getErrors());
+        if ($messagesResult->hasErrors()) {
+            return new MessagesResponse([], $messagesResult->getErrors());
         }
         $messageViews = array_map(
             function (Message $message) {
@@ -44,7 +70,7 @@ class UserController
                     self::toIsoDateTime($message->getTimestamp()),
                     $message->getMessage());
             },
-            $result->get());
+            $messagesResult->get());
         return new MessagesResponse($messageViews);
     }
 

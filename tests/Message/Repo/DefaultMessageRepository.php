@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace ChatApp\Message\Api;
+namespace ChatApp\Message\Repo;
 
-use ChatApp\Message\Repo\MessageRepository;
+use ChatApp\Message\Api\Message;
 
 class DefaultMessageRepository implements MessageRepository
 {
     /** @var Message[] */
-    private $messages = [];
+    private $messages;
 
     /**
      * @param Message[] $messages
      */
-    public function __construct(array $messages)
+    public function __construct(array $messages = [])
     {
         $this->messages = $messages;
     }

@@ -8,6 +8,7 @@ use ChatApp\DB;
 use ChatApp\Message\Api\Message;
 use DateTime;
 use Exception;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 class SqliteMessageRepositoryTest extends TestCase
@@ -17,11 +18,12 @@ class SqliteMessageRepositoryTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $testDbPath = dirname(Config::SQLITE_PATH) . '/chat-app.test.db';
-        self::$messageRepository = new SqliteMessageRepository($testDbPath);
+        $testDbUrl = 'sqlite:' . dirname(Config::SQLITE_PATH) . '/chat-app.test.db';
+        $testDataSource = new PDO($testDbUrl);
+        self::$messageRepository = new SqliteMessageRepository($testDataSource);
 
         $initScript = file_get_contents(Config::INIT_SCRIPT_PATH);
-        self::$messageRepository->getPdo()->exec($initScript);
+        self::$messageRepository->getDataSource()->exec($initScript);
     }
 
     /** @test
@@ -29,7 +31,7 @@ class SqliteMessageRepositoryTest extends TestCase
      */
     public function findByUserId_MessagesWithUserId_ReturnsMessages(): void
     {
-        $pdo = self::$messageRepository->getPdo();
+        $pdo = self::$messageRepository->getDataSource();
         $lastUserId = DB::insertNewUser($pdo);
 
         DB::insertMessage($pdo, $lastUserId - 1, '2019-03-21T10:12:42.477+00:00', ':|');
@@ -39,6 +41,7 @@ class SqliteMessageRepositoryTest extends TestCase
 
         $messages = self::$messageRepository->findByUserId($lastUserId);
         $this->assertCount(3, $messages);
+        $this->assertContainsOnlyInstancesOf(Message::class, $messages);
 
         $this->assertEquals(
             new Message($lastUserId, new DateTime('2019-03-21T20:12:44.002+00:00'), 'World!', $lastMessageId),
@@ -51,7 +54,7 @@ class SqliteMessageRepositoryTest extends TestCase
      */
     public function findByUserId_MissingUserId_ReturnsEmpty(): void
     {
-        $pdo = self::$messageRepository->getPdo();
+        $pdo = self::$messageRepository->getDataSource();
         $lastUserId = DB::insertNewUser($pdo);
         DB::insertMessage($pdo, $lastUserId, '2011-01-11T10:11:42.477+00:00', 'HI');
 

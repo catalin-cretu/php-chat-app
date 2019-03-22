@@ -40,7 +40,38 @@ class ApiFT extends TestCase
     }
 
     /** @test */
-    public function request_UnmappedOperation_ReturnsNotAllowedStatus(): void
+    public function getAllUsers_UnmappedOperation_ReturnsNotAllowedStatus(): void
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('405 Method Not Allowed');
+
+        self::$client->post(self::ROOT_URL . '/users');
+    }
+
+    /** @test */
+    public function getAllUsers_ReturnsOkStatus(): void
+    {
+        $response = self::$client->get(self::ROOT_URL . '/users');
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /** @test */
+    public function getAllUsers_ReturnsJson(): void
+    {
+        $userId = DB::insertNewUser(self::$pdo);
+
+        $response = self::$client->get(self::ROOT_URL . "/users");
+
+        $this->assertContains('application/json; charset=UTF-8', $response->getHeader('Content-Type'));
+        $responseJson = $response->getBody()->getContents();
+
+        $this->assertJson($responseJson);
+        $this->assertStringContainsString(":$userId", $responseJson);
+    }
+
+    /** @test */
+    public function getUserMessages_UnmappedOperation_ReturnsNotAllowedStatus(): void
     {
         $this->expectException(ClientException::class);
         $this->expectExceptionMessage('405 Method Not Allowed');
@@ -69,7 +100,7 @@ class ApiFT extends TestCase
         $responseJson = $response->getBody()->getContents();
 
         $this->assertJson($responseJson);
-        $this->assertStringContainsString('"Happy Old Year!"', $responseJson);
-        $this->assertStringContainsString('"2018-12-12T00:00:00+00:00"', $responseJson);
+        $this->assertStringContainsString(':"Happy Old Year!"', $responseJson);
+        $this->assertStringContainsString(':"2018-12-12T00:00:00+00:00"', $responseJson);
     }
 }

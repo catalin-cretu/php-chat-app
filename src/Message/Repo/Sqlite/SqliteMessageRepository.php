@@ -3,25 +3,27 @@
 namespace ChatApp\Message\Repo\Sqlite;
 
 require_once __DIR__ . '/../../Api/Message.php';
+require_once __DIR__ . '/../../../Common/Repo/DataSource.php';
 
+use ChatApp\Common\Repo\DataSource;
 use ChatApp\Message\Api\Message;
 use ChatApp\Message\Repo\MessageRepository;
 use DateTime;
 use Exception;
 use PDO;
 
-class SqliteMessageRepository implements MessageRepository
+class SqliteMessageRepository implements MessageRepository, DataSource
 {
-    private $pdo;
+    private $dataSource;
 
-    public function __construct(string $dbPath)
+    public function __construct(PDO $dataSource)
     {
-        $this->pdo = new PDO('sqlite:' . $dbPath);
+        $this->dataSource = $dataSource;
     }
 
-    public function getPdo(): PDO
+    public function getDataSource(): PDO
     {
-        return $this->pdo;
+        return $this->dataSource;
     }
 
     /**
@@ -31,7 +33,7 @@ class SqliteMessageRepository implements MessageRepository
      */
     public function findByUserId(int $userId): array
     {
-        $messagesStatement = $this->pdo->prepare('select * from MESSAGE where USER_ID = :userId');
+        $messagesStatement = $this->dataSource->prepare('select * from MESSAGE where USER_ID = :userId');
         $messagesStatement->execute(['userId' => $userId]);
 
         $messages = [];

@@ -5,6 +5,7 @@ namespace ChatApp\User\WebApi;
 
 use ChatApp\Fixtures;
 use ChatApp\Message\Api\Message;
+use ChatApp\User\Api\User;
 use DateTime;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -15,9 +16,25 @@ class UserControllerTest extends TestCase
     /** @test
      * @throws Exception
      */
+    public function getAllUsers_ReturnsUsersResponse(): void
+    {
+        $userController = Fixtures::newUserControllerWithUsers([
+            new User(0)
+        ]);
+
+        $usersResponse = $userController->getAllUsers();
+        $this->assertEmpty($usersResponse->errors);
+
+        $this->assertNotEmpty($usersResponse->users);
+        $this->assertContainsOnlyInstancesOf(UserView::class, $usersResponse->users);
+    }
+
+    /** @test
+     * @throws Exception
+     */
     public function getMessages_ForUserId_ReturnsMessagesResponseWithMessages(): void
     {
-        $userController = Fixtures::newUserController([
+        $userController = Fixtures::newUserControllerWithMessages([
             new Message(0, new DateTime(), '', 0),
         ]);
 
@@ -33,7 +50,7 @@ class UserControllerTest extends TestCase
      */
     public function getMessages_MissingUserId_ReturnsMessagesResponseWithErrors(): void
     {
-        $userController = Fixtures::newUserController([]);
+        $userController = Fixtures::newUserControllerWithMessages([]);
 
         $messagesResponse = $userController->getMessages(2432);
         $this->assertEmpty($messagesResponse->messages);

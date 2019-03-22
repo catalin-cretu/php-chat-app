@@ -14,17 +14,51 @@ class UserServiceTest extends TestCase
     /** @test
      * @throws Exception
      */
-    public function findMessages_ExistingUserId_ReturnsMessages(): void
+    public function findAllUsers_NoUsers_ReturnsEmptyResult(): void
     {
-        $userService = Fixtures::newUserService([
+        $userService = Fixtures::newUserServiceWithUsers([]);
+
+        $usersResult = $userService->findAllUsers();
+        $this->assertEmpty($usersResult->getErrors());
+
+        $users = $usersResult->get();
+        $this->assertEmpty($users);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function findAllUsers_ReturnsUsersResult(): void
+    {
+        $userService = Fixtures::newUserServiceWithUsers([
+            new User(277),
+            new User(278),
+            new User(279),
+        ]);
+
+        $usersResult = $userService->findAllUsers();
+        $this->assertEmpty($usersResult->getErrors());
+
+        $users = $usersResult->get();
+        $this->assertCount(3, $users);
+
+        $this->assertEquals(new User(277), $users[0]);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function findMessages_ExistingUserId_ReturnsMessagesResult(): void
+    {
+        $userService = Fixtures::newUserServiceWithMessages([
             new Message(2233, new DateTime('2000-02-03'), 'Bye Bob', 232),
             new Message(0, new DateTime(), '', 0)
         ]);
 
-        $result = $userService->findMessages(233);
-        $this->assertEmpty($result->getErrors());
+        $messagesResult = $userService->findMessages(233);
+        $this->assertEmpty($messagesResult->getErrors());
 
-        $messages = $result->get();
+        $messages = $messagesResult->get();
         $this->assertCount(2, $messages);
 
         $this->assertEquals(
@@ -35,14 +69,14 @@ class UserServiceTest extends TestCase
     /** @test
      * @throws Exception
      */
-    public function findMessages_UserIdNotFound_ReturnsErrors(): void
+    public function findMessages_UserIdNotFound_ReturnsErrorsResult(): void
     {
-        $userService = Fixtures::newUserService([]);
+        $userService = Fixtures::newUserServiceWithMessages([]);
 
-        $result = $userService->findMessages(233);
-        $this->assertNull($result->get());
+        $errorsResult = $userService->findMessages(233);
+        $this->assertNull($errorsResult->get());
 
-        $errors = $result->getErrors();
+        $errors = $errorsResult->getErrors();
 
         $this->assertEquals(['Cannot find user with id 233'], $errors);
     }
