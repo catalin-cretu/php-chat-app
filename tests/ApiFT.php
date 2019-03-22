@@ -86,7 +86,7 @@ class ApiFT extends TestCase
         $this->expectExceptionMessage('400 Bad Request');
         $this->expectExceptionMessage('9999');
 
-        self::$client->get(self::ROOT_URL . "/users/9999/messages");
+        self::$client->get(self::ROOT_URL . '/users/9999/messages');
     }
 
     /** @test */
@@ -111,6 +111,45 @@ class ApiFT extends TestCase
 
         $this->assertJson($responseJson);
         $this->assertStringContainsString(':"Happy Old Year!"', $responseJson);
-        $this->assertStringContainsString(':"2018-12-12T00:00:00+00:00"', $responseJson);
+        $this->assertStringContainsString(':"2018-12-12T00:00:00.000+00:00"', $responseJson);
+    }
+
+    /** @test */
+    public function createUserMessages_MissingRequiredFields_ReturnsBadRequestStatus(): void
+    {
+        $userId = DB::insertNewUser(self::$pdo);
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('400 Bad Request');
+
+        self::$client->post(self::ROOT_URL . "/users/$userId/messages", ['body' => '{ "invalidField": true }']);
+    }
+
+    /** @test */
+    public function createUserMessages_ForUserId_ReturnsOkStatus(): void
+    {
+        $userId = DB::insertNewUser(self::$pdo);
+        $response = self::$client->post(
+            self::ROOT_URL . "/users/$userId/messages",
+            ['body' => '{ "sender":' . $userId . ', "message":"msg" }']);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /** @test */
+    public function createUserMessages_ForUserId_ReturnsJson(): void
+    {
+        $userId = DB::insertNewUser(self::$pdo);
+        self::$client->post(
+            self::ROOT_URL . "/users/$userId/messages",
+            ['body' => '{ "sender":' . $userId . ', "message":"hello" }']);
+
+        $response = self::$client->get(self::ROOT_URL . "/users/$userId/messages");
+
+        $this->assertContains('application/json; charset=UTF-8', $response->getHeader('Content-Type'));
+        $responseJson = $response->getBody()->getContents();
+
+        $this->assertJson($responseJson);
+        $this->assertStringContainsString(':"hello"', $responseJson);
     }
 }

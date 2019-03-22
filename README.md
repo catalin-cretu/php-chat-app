@@ -1,9 +1,10 @@
 # php-chat-app
-Super simple chat app, written in PHP.
+Super simple RESTful API for a chat app, written in PHP.
 
 ## Tools
 - PHP 7+
 - composer
+- bash (for scripts)
 
 ## Scripts
 - `build`
@@ -24,3 +25,11 @@ Super simple chat app, written in PHP.
 GET : localhost:8008/api.php/users/{id}/messages
 POST: localhost:8008/api.php/users/{id}/messages
 ```
+
+## Improvements
+- use a production-ready REST API library
+    - unit tests could be reduced to focus more on business logic (services)
+    when using well known, tested libraries
+    - full support for restful endpoints
+- API versioning
+- user security

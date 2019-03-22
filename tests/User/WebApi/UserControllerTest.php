@@ -10,6 +10,7 @@ use DateTime;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/../../../src/User/WebApi/CreateUserMessage.php';
 
 class UserControllerTest extends TestCase
 {
@@ -55,5 +56,31 @@ class UserControllerTest extends TestCase
 
         $this->assertNotEmpty($messagesResponse->errors);
         $this->assertStringContainsString('2432', $messagesResponse->errors[0]);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createUserMessage_ForUserId_ReturnsCreateUserMessageResponse(): void
+    {
+        $userController = Fixtures::newUserController([new User(0)]);
+
+        $createUserMessageResponse = $userController->createUserMessage(0, new CreateUserMessageRequest(0, ';)'));
+
+        $this->assertInstanceOf(MessageView::class, $createUserMessageResponse->message);
+        $this->assertEmpty($createUserMessageResponse->errors);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createUserMessage_MissingUserId_ReturnsCreateUserMessageResponseWithErrors(): void
+    {
+        $userController = Fixtures::newUserController();
+
+        $createUserMessageResponse = $userController->createUserMessage(2342, new CreateUserMessageRequest());
+
+        $this->assertNotEmpty($createUserMessageResponse->errors);
+        $this->assertStringContainsString('2342', $createUserMessageResponse->errors[0]);
     }
 }

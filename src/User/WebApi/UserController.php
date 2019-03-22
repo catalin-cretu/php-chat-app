@@ -8,6 +8,7 @@ use ChatApp\Message\Api\Message;
 use ChatApp\User\Api\User;
 use ChatApp\User\Api\UserService;
 use DateTime;
+use Exception;
 
 require_once 'MessagesResponse.php';
 require_once 'UsersResponse.php';
@@ -62,20 +63,48 @@ class UserController
         if ($messagesResult->hasErrors()) {
             return new MessagesResponse([], $messagesResult->getErrors());
         }
-        $messageViews = array_map(
-            function (Message $message) {
-                return new MessageView(
-                    $message->getId(),
-                    $message->getUserId(),
-                    self::toIsoDateTime($message->getTimestamp()),
-                    $message->getMessage());
-            },
+        $messageViews = array_map(function (Message $message) {
+            return self::toMessageView($message);
+        },
             $messagesResult->get());
         return new MessagesResponse($messageViews);
     }
 
-    private static function toIsoDateTime(DateTime $getTimestamp): string
+    /**
+     * @param int $userId
+     * @param CreateUserMessageRequest $createUserMessageRequest
+     * @return CreateUserMessageResponse
+     * @throws Exception
+     */
+    public function createUserMessage(
+        int $userId,
+        CreateUserMessageRequest $createUserMessageRequest): CreateUserMessageResponse
     {
-        return $getTimestamp->format(DateTime::ATOM);
+        $messageResult = $this->userService->createMessage(
+            $userId, $createUserMessageRequest->sender, $createUserMessageRequest->message);
+
+        return self::toCreateUserMessageResponse($messageResult);
+    }
+
+    private static function toCreateUserMessageResponse(Result $messageResult): CreateUserMessageResponse
+    {
+        if ($messageResult->hasErrors()) {
+            return new CreateUserMessageResponse(null, $messageResult->getErrors());
+        }
+        $message = $messageResult->get();
+        return new CreateUserMessageResponse(self::toMessageView($message));
+    }
+
+    /**
+     * @param Message $message
+     * @return MessageView
+     */
+    private static function toMessageView(Message $message): MessageView
+    {
+        return new MessageView(
+            $message->getId(),
+            $message->getUserId(),
+            $message->getTimestamp()->format(DateTime::RFC3339_EXTENDED),
+            $message->getMessage());
     }
 }

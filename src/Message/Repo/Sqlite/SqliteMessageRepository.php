@@ -46,4 +46,23 @@ class SqliteMessageRepository implements MessageRepository, DataSource
         }
         return $messages;
     }
+
+    /**
+     * @param Message $message
+     * @return Message
+     * @throws Exception
+     */
+    public function save(Message $message): Message
+    {
+        $messagesStatement = $this->dataSource->prepare(
+            'insert into MESSAGE values(null, :userId, :timestamp, :message)');
+        $messagesStatement->execute([
+            'userId' => $message->getUserId(),
+            'timestamp' => $message->getTimestamp()->format(DateTime::RFC3339_EXTENDED),
+            'message' => $message->getMessage(),
+        ]);
+
+        $lastMessageId = $this->dataSource->lastInsertId();
+        return new Message($message->getUserId(), $message->getTimestamp(), $message->getMessage(), (int)$lastMessageId);
+    }
 }

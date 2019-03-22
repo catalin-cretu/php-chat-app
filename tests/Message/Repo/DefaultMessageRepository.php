@@ -3,6 +3,8 @@
 namespace ChatApp\Message\Repo;
 
 use ChatApp\Message\Api\Message;
+use DateTime;
+use Exception;
 
 class DefaultMessageRepository implements MessageRepository
 {
@@ -31,5 +33,18 @@ class DefaultMessageRepository implements MessageRepository
             }
         }
         return $foundMessage;
+    }
+
+    /**
+     * @param Message $message
+     * @return Message
+     * @throws Exception
+     */
+    public function save(Message $message): Message
+    {
+        $newMessage = new Message($message->getUserId(), new DateTime(), $message->getMessage(), $message->getUserId());
+        $this->messages[] = $newMessage;
+
+        return $newMessage;
     }
 }

@@ -62,4 +62,20 @@ class SqliteMessageRepositoryTest extends TestCase
 
         $this->assertEmpty($messages);
     }
+
+    /** @test
+     * @throws Exception
+     */
+    public function save_Message_ReturnsSavedMessage(): void
+    {
+        $pdo = self::$messageRepository->getDataSource();
+        $lastUserId = DB::insertNewUser($pdo);
+        $timestamp = new DateTime();
+        $savedMessage = self::$messageRepository->save(new Message($lastUserId, $timestamp, 'msg'));
+
+        $this->assertEquals($pdo->lastInsertId(), $savedMessage->getId());
+        $this->assertEquals($lastUserId, $savedMessage->getUserId());
+        $this->assertEquals('msg', $savedMessage->getMessage());
+        $this->assertEquals($timestamp, $savedMessage->getTimestamp());
+    }
 }

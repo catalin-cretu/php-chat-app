@@ -12,4 +12,6 @@ interface MessageRepository
      * @return Message[]
      */
     public function findByUserId(int $userId): array;
+
+    public function save(Message $message): Message;
 }

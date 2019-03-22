@@ -15,9 +15,8 @@ function stopBackgroundServer() {
     kill -9 ${serverPid}
 }
 
-php bin/composer install
-php bin/composer run-script test
-
-startBackgroundServer
-php bin/composer run-script functional-test
-stopBackgroundServer
+php bin/composer install \
+ && php bin/composer run-script test \
+ && startBackgroundServer \
+ && php bin/composer run-script functional-test \
+ && stopBackgroundServer

@@ -100,4 +100,91 @@ class UserServiceTest extends TestCase
 
         $this->assertEquals(['Cannot find user with id 233'], $errors);
     }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createMessage_NullSenderId_ReturnsErrorsResult(): void
+    {
+        $userService = Fixtures::newUserService([new User(0)]);
+
+        $errorsResult = $userService->createMessage(0, null, 'a');
+        $this->assertNull($errorsResult->get());
+
+        $errors = $errorsResult->getErrors();
+
+        $this->assertEquals(["Sender user id ('sender') must not be blank"], $errors);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createMessage_BlankMessage_ReturnsErrorsResult(): void
+    {
+        $userService = Fixtures::newUserService([new User(0)]);
+
+        $errorsResult = $userService->createMessage(0, 0, null);
+        $this->assertNull($errorsResult->get());
+
+        $errors = $errorsResult->getErrors();
+
+        $this->assertEquals(["Content of message ('message') must not be blank"], $errors);
+        $this->assertEquals(
+            ["Content of message ('message') must not be blank"],
+            $userService->createMessage(0, 0, '   ')->getErrors());
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createMessage_UserIdNotFound_ReturnsErrorsResult(): void
+    {
+        $userService = Fixtures::newUserService(
+            [new User(1), new User(2)]
+        );
+
+        $errorsResult = $userService->createMessage(122, 2, 'aa');
+        $this->assertNull($errorsResult->get());
+
+        $errors = $errorsResult->getErrors();
+
+        $this->assertEquals(['Cannot find user with id 122'], $errors);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createMessage_SenderIdNotFound_ReturnsErrorsResult(): void
+    {
+        $userService = Fixtures::newUserService(
+            [new User(1), new User(2)]
+        );
+
+        $errorsResult = $userService->createMessage(1, 2342, 'aa');
+        $this->assertNull($errorsResult->get());
+
+        $errors = $errorsResult->getErrors();
+
+        $this->assertEquals(['Cannot find sender user with id 2342'], $errors);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function createMessage_ReturnsMessageIdResult(): void
+    {
+        $userService = Fixtures::newUserService(
+            [new User(1)]
+        );
+
+        $messageIdResult = $userService->createMessage(1, 1, 'new');
+        $this->assertEmpty($messageIdResult->getErrors());
+
+        $messageResult = $userService->findMessages(1);
+
+        $message = $messageResult->get()[0];
+        $this->assertNotNull($message->getId());
+        $this->assertEquals(1, $message->getUserId());
+        $this->assertEquals('new', $message->getMessage());
+    }
 }
