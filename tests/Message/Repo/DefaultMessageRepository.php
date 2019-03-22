@@ -23,6 +23,13 @@ class DefaultMessageRepository implements MessageRepository
      */
     public function findByUserId(int $userId): array
     {
-        return $this->messages;
+        $foundMessage = [];
+
+        foreach ($this->messages as $message) {
+            if ($message->getUserId() === $userId) {
+                $foundMessage[] = $message;
+            }
+        }
+        return $foundMessage;
     }
 }

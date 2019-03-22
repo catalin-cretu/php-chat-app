@@ -39,11 +39,11 @@ class UserService
      */
     public function findMessages(int $userId): Result
     {
-        $messages = $this->messageRepository->findByUserId($userId);
-
-        if (!empty($messages)) {
-            return Result::ok($messages);
+        $userExists = $this->userRepository->exists($userId);
+        if (!$userExists) {
+            return Result::errors(["Cannot find user with id $userId"]);
         }
-        return Result::errors(["Cannot find user with id $userId"]);
+        $messages = $this->messageRepository->findByUserId($userId);
+        return Result::ok($messages);
     }
 }

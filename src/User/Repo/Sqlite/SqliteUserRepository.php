@@ -38,4 +38,20 @@ class SqliteUserRepository implements UserRepository, DataSource
         }
         return $users;
     }
+
+    public function exists(int $userId): bool
+    {
+        $existsStatement = $this->dataSource->query(
+            'select 
+                            case when count(*) = 1 
+                               then true
+                               else false
+                            end as USER_EXISTS
+                      from USER 
+                      where ID = :userId');
+        $existsStatement->execute(['userId' => $userId]);
+        $row = $existsStatement->fetch();
+
+        return (bool)$row['USER_EXISTS'];
+    }
 }

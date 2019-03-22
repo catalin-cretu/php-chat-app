@@ -80,6 +80,16 @@ class ApiFT extends TestCase
     }
 
     /** @test */
+    public function getUserMessages_MissingUserId_ReturnsBadRequestStatus(): void
+    {
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('400 Bad Request');
+        $this->expectExceptionMessage('9999');
+
+        self::$client->get(self::ROOT_URL . "/users/9999/messages");
+    }
+
+    /** @test */
     public function getUserMessages_ForUserId_ReturnsOkStatus(): void
     {
         $userId = DB::insertNewUser(self::$pdo);

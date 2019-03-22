@@ -27,7 +27,11 @@ function handleUserMessagesRequest(string $requestMethod, int $userIdPathParam):
     if ($requestMethod === 'GET') {
         header('Content-Type: application/json; charset=UTF-8');
 
-        echo json_encode($userController->getMessages($userIdPathParam));
+        $messagesResponse = $userController->getMessages($userIdPathParam);
+        if (!empty($messagesResponse->errors)) {
+            http_response_code(400);
+        }
+        echo json_encode($messagesResponse);
     } else {
         http_response_code(405);
     }

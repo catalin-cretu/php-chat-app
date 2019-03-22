@@ -42,4 +42,17 @@ class SqliteUserRepositoryTest extends TestCase
         $this->assertContains($firstUserId, $userIds);
         $this->assertContains($secondUserId, $userIds);
     }
+
+    /** @test */
+    public function exists_ExistingUserId_ReturnsTrue(): void
+    {
+        $this->assertFalse(self::$userRepository->exists(-234));
+
+        $pdo = self::$userRepository->getDataSource();
+        DB::insertNewUser($pdo);
+        $userId = DB::insertNewUser($pdo);
+        DB::insertNewUser($pdo);
+
+        $this->assertTrue(self::$userRepository->exists($userId));
+    }
 }

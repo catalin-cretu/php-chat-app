@@ -18,9 +18,7 @@ class UserControllerTest extends TestCase
      */
     public function getAllUsers_ReturnsUsersResponse(): void
     {
-        $userController = Fixtures::newUserControllerWithUsers([
-            new User(0)
-        ]);
+        $userController = Fixtures::newUserController([new User(0)]);
 
         $usersResponse = $userController->getAllUsers();
         $this->assertEmpty($usersResponse->errors);
@@ -34,8 +32,8 @@ class UserControllerTest extends TestCase
      */
     public function getMessages_ForUserId_ReturnsMessagesResponseWithMessages(): void
     {
-        $userController = Fixtures::newUserControllerWithMessages([
-            new Message(0, new DateTime(), '', 0),
+        $userController = Fixtures::newUserController([new User(5566)], [
+            new Message(5566, new DateTime(), '', 0),
         ]);
 
         $messagesResponse = $userController->getMessages(5566);
@@ -50,7 +48,7 @@ class UserControllerTest extends TestCase
      */
     public function getMessages_MissingUserId_ReturnsMessagesResponseWithErrors(): void
     {
-        $userController = Fixtures::newUserControllerWithMessages([]);
+        $userController = Fixtures::newUserController([], []);
 
         $messagesResponse = $userController->getMessages(2432);
         $this->assertEmpty($messagesResponse->messages);

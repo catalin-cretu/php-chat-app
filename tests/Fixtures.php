@@ -15,37 +15,24 @@ class Fixtures
 {
     /**
      * @param User[] $users
-     * @return UserController
-     */
-    public static function newUserControllerWithUsers(array $users): UserController
-    {
-        return new UserController(self::newUserServiceWithUsers($users));
-    }
-
-    /**
      * @param Message[] $messages
      * @return UserController
      */
-    public static function newUserControllerWithMessages(array $messages): UserController
+    public static function newUserController(array $users = [], array $messages = []): UserController
     {
-        return new UserController(self::newUserServiceWithMessages($messages));
-    }
-
-    /**
-     * @param Message[] $messages
-     * @return UserService
-     */
-    public static function newUserServiceWithMessages(array $messages): UserService
-    {
-        return new UserService(new DefaultUserRepository(), new DefaultMessageRepository($messages));
+        return new UserController(self::newUserService($users, $messages));
     }
 
     /**
      * @param User[] $users
+     * @param Message[] $messages
      * @return UserService
      */
-    public static function newUserServiceWithUsers(array $users): UserService
+    public static function newUserService(array $users = [], array $messages = []): UserService
     {
-        return new UserService(new DefaultUserRepository($users), new DefaultMessageRepository());
+        return new UserService(
+            new DefaultUserRepository($users),
+            new DefaultMessageRepository($messages)
+        );
     }
 }

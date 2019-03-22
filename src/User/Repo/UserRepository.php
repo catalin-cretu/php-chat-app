@@ -11,4 +11,6 @@ interface UserRepository
      * @return User[]
      */
     public function findAll(): array;
+
+    public function exists(int $userId): bool;
 }

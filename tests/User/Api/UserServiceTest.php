@@ -16,7 +16,7 @@ class UserServiceTest extends TestCase
      */
     public function findAllUsers_NoUsers_ReturnsEmptyResult(): void
     {
-        $userService = Fixtures::newUserServiceWithUsers([]);
+        $userService = Fixtures::newUserService([]);
 
         $usersResult = $userService->findAllUsers();
         $this->assertEmpty($usersResult->getErrors());
@@ -30,7 +30,7 @@ class UserServiceTest extends TestCase
      */
     public function findAllUsers_ReturnsUsersResult(): void
     {
-        $userService = Fixtures::newUserServiceWithUsers([
+        $userService = Fixtures::newUserService([
             new User(277),
             new User(278),
             new User(279),
@@ -50,9 +50,9 @@ class UserServiceTest extends TestCase
      */
     public function findMessages_ExistingUserId_ReturnsMessagesResult(): void
     {
-        $userService = Fixtures::newUserServiceWithMessages([
-            new Message(2233, new DateTime('2000-02-03'), 'Bye Bob', 232),
-            new Message(0, new DateTime(), '', 0)
+        $userService = Fixtures::newUserService([new User(233)], [
+            new Message(233, new DateTime('2000-02-03'), 'Bye Bob', 0),
+            new Message(233, new DateTime(), '', 0)
         ]);
 
         $messagesResult = $userService->findMessages(233);
@@ -62,8 +62,25 @@ class UserServiceTest extends TestCase
         $this->assertCount(2, $messages);
 
         $this->assertEquals(
-            new Message(2233, new DateTime('2000-02-03'), 'Bye Bob', 232),
+            new Message(233, new DateTime('2000-02-03'), 'Bye Bob', 0),
             $messages[0]);
+    }
+
+    /** @test
+     * @throws Exception
+     */
+    public function findMessages_NoMessagesForUserId_ReturnsEmptyResult(): void
+    {
+        $userService = Fixtures::newUserService([
+            new User(1), new User(2), new User(345)
+        ], [
+            new Message(1, new DateTime(), '', 0),
+            new Message(2, new DateTime(), '', 0)
+        ]);
+
+        $messagesResult = $userService->findMessages(345);
+        $this->assertEmpty($messagesResult->getErrors());
+        $this->assertEmpty($messagesResult->get());
     }
 
     /** @test
@@ -71,7 +88,10 @@ class UserServiceTest extends TestCase
      */
     public function findMessages_UserIdNotFound_ReturnsErrorsResult(): void
     {
-        $userService = Fixtures::newUserServiceWithMessages([]);
+        $userService = Fixtures::newUserService(
+            [new User(1)],
+            [new Message(1, new DateTime(), '', 0)]
+        );
 
         $errorsResult = $userService->findMessages(233);
         $this->assertNull($errorsResult->get());

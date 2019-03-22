@@ -24,4 +24,14 @@ class DefaultUserRepository implements UserRepository
     {
         return $this->users;
     }
+
+    public function exists(int $userId): bool
+    {
+        foreach ($this->users as $user) {
+            if ($user->getId() === $userId) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
